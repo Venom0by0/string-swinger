@@ -19,7 +19,7 @@ function App() {
     if (includeSymbols) pool += '!@#$%^&*()_+~`|}{[]:;?><,./-=';
 
     if (pool.length === 0) {
-      setGeneratedString('NO_PARAMETERS_SELECTED');
+      setGeneratedString('Select at least one character type');
       return;
     }
 
@@ -38,7 +38,7 @@ function App() {
   }, [length, includeNumbers, includeSymbols, includeUppercase]);
 
   const copyToClipboard = (value = generatedString) => {
-    if (value.startsWith('NO_PARAMETERS')) return;
+    if (value.startsWith('Select at least')) return;
     window.navigator.clipboard.writeText(value);
     setCopied(true);
     setTimeout(() => setCopied(false), 1800);
@@ -46,6 +46,17 @@ function App() {
 
   const toggleTheme = () => setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'));
   const isDark = theme === 'dark';
+
+  // ---------- SYNC BODY BACKGROUND (useEffect) ----------
+  // Without this, the browser's default white background shows through
+  // on overscroll / if content is taller than the viewport.
+  useEffect(() => {
+    document.body.style.background = isDark ? '#020305' : '#f8fafc';
+    document.body.style.margin = '0';
+    return () => {
+      document.body.style.background = '';
+    };
+  }, [isDark]);
 
   // ---------- STRENGTH SCORE ----------
   const strength = (() => {
@@ -100,21 +111,21 @@ function App() {
         }}
       />
 
-      {/* Theme toggle */}
-      <div className="absolute top-6 right-6 z-50">
-        <button
-          onClick={toggleTheme}
-          className={`flex items-center gap-2 rounded-xl border px-4 py-2 text-[10px] font-bold uppercase tracking-widest transition-all duration-300 active:scale-95 ${
-            isDark
-              ? 'border-[#3d7ea6]/30 bg-[#070b14]/90 text-[#7fc4e0] hover:border-[#5ad4c8]/60'
-              : 'border-[#bcd6e6] bg-white/80 text-[#2c5a73] hover:border-[#3d8fb0]/60'
-          }`}
-        >
-          {isDark ? 'Daylight' : 'Nightfall'}
-        </button>
-      </div>
-
       <div className="relative z-10 w-full max-w-md">
+        {/* Theme toggle, in-flow so it never overlaps the title on small screens */}
+        <div className="mb-3 flex justify-end">
+          <button
+            onClick={toggleTheme}
+            className={`flex items-center gap-2 rounded-xl border px-4 py-2 text-[10px] font-bold uppercase tracking-widest transition-all duration-300 active:scale-95 ${
+              isDark
+                ? 'border-[#3d7ea6]/30 bg-[#070b14]/90 text-[#7fc4e0] hover:border-[#5ad4c8]/60'
+                : 'border-[#bcd6e6] bg-white/80 text-[#2c5a73] hover:border-[#3d8fb0]/60'
+            }`}
+          >
+            {isDark ? 'Daylight' : 'Nightfall'}
+          </button>
+        </div>
+
         {/* App name, outside the card */}
         <div className="mb-4 flex items-center justify-center gap-2.5">
           <span className="relative flex h-2.5 w-2.5">
@@ -124,7 +135,7 @@ function App() {
             />
             <span className="relative inline-flex h-2.5 w-2.5 rounded-full" style={{ background: isDark ? '#5ad4c8' : '#3d8fb0' }} />
           </span>
-          <h1 className={`text-2xl font-bold tracking-wide ${isDark ? 'text-[#e6f2f8]' : 'text-[#1c3a4c]'}`}>
+          <h1 className={`text-xl sm:text-2xl font-bold tracking-wide ${isDark ? 'text-[#e6f2f8]' : 'text-[#1c3a4c]'}`}>
             String<span style={{ color: isDark ? '#7fc4e0' : '#3d8fb0' }}> </span>Swinger
           </h1>
         </div>
